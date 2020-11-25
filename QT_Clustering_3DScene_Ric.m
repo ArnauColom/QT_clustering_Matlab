@@ -19,7 +19,7 @@ dataUR = reshape( data(1:step:end, 1:step:end, :), [], 3 );
 
 if showData
     figure;
-    scatter3(dataUR(:,1), dataUR(:,2), dataUR(:,3), '.');
+    scatter3(dataUR(:,1), dataUR(:,2), dataUR(:,3), 'fill');
     axis equal;
 end
 
@@ -31,11 +31,12 @@ clusterIndex = zeros(size(dataUR, 1), 1);
 
 % Initialize the candidate cluster
 candidateCluster = [];
-c_index = 0; % Index of the current cluster
+c_index = 1; % Index of the current cluster
 
 % Initialize the structure holding the points yet to be assigned to a
 % cluster
-dataToCluster = dataUR;
+dataToCluster      = dataUR;
+dataToClusterIndex = 1:1:size(dataToCluster, 1); % Keep the index
 
 while ~isempty(dataToCluster)
     fprintf('\nAssigning points to cluster number %d \n', c_index);
@@ -63,11 +64,12 @@ while ~isempty(dataToCluster)
     fprintf('%d points have been selected to form the cluster %d \n', length(candidateCluster), c_index);
     
     % Save the selected candidate cluster
-    clusterIndex(candidateCluster) = c_index;
+    clusterIndex(dataToClusterIndex(candidateCluster)) = c_index;
     c_index = c_index + 1;
     
     % Take the point already clustered out of the data
     dataToCluster(candidateCluster, :) = [];
+    dataToClusterIndex(candidateCluster) = [];
     
     candidateCluster = [];
 end
@@ -77,12 +79,12 @@ if showData
     figure;
     for i=1:c_index-1
         indexes = find(clusterIndex == i);
-        markerSize = ones(size(indexes)) * 4;
+        markerSize = ones(size(indexes)) * 20;
         rnd_color = ones(size(indexes))*rand(1,3);
-        scatter3(dataUR(indexes,1), dataUR(indexes,2), dataUR(indexes,3), markerSize, rnd_color);
+        scatter3(dataUR(indexes,1), dataUR(indexes,2), dataUR(indexes,3), markerSize, rnd_color, 'fill');
         hold on
         axis equal;
     end
 end
 
-
+save('test.mat');
