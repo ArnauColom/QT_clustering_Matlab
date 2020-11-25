@@ -1,11 +1,12 @@
 clear;
 
 %% Variables used to customize the behaviour of QT Clustering
-showData = true; % Used to show the initial data
-lowRes = true;   % Boolean used to determine whether to use low resolution data or not
-step = 4;        % value used to undersample the data to be clustered (reduce resolution)
-threshold = 3;   % Threshold distance within the cluster
-dist = @(p1, p2) sqrt(sum((p1-p2).^2));
+showData  = true; % Used to show the initial data
+lowRes    = true; % Boolean used to determine whether to use low resolution data or not
+step_data = 1;    % value used to undersample the data to be clustered (reduce resolution)
+nCenters  = 10;   % Number of potential centers considered at each iteration over the data to be distributed
+threshold = 0.1;  % Threshold distance within the cluster
+threshold_dot = cos(pi/10);   % Threshold distance within the cluster
 
 %% Data (for now, only the 3D positions will be used)
 if(lowRes)
@@ -14,8 +15,23 @@ else
     Cornell_Arnau_positions;
 end
 
+% Normalize the 3D position data
+min_x = min(min(data(:,:,1)));
+min_y = min(min(data(:,:,2)));
+min_z = min(min(data(:,:,3)));
+data(:,:,1) = data(:,:,1) - min_x;
+data(:,:,2) = data(:,:,2) - min_y;
+data(:,:,3) = data(:,:,3) - min_z; 
+
+max_x = max(max(data(:,:,1)));
+max_y = max(max(data(:,:,2)));
+max_z = max(max(data(:,:,3)));
+data(:,:,1) = data(:,:,1) / max_x;
+data(:,:,2) = data(:,:,2) / max_y;
+data(:,:,3) = data(:,:,3) / max_z; 
+
 % Undersample according to step and reshape
-dataUR = reshape( data(1:step:end, 1:step:end, :), [], 3 ); 
+dataUR = reshape( data(1:step_data:end, 1:step_data:end, :), [], 3 ); 
 
 if showData
     figure;
@@ -43,7 +59,8 @@ while ~isempty(dataToCluster)
     fprintf('There are %d points to assign\n', size(dataToCluster, 1));
     
     % For each datapoint to be clustered
-    for i = 1:size(dataToCluster, 1)
+    step = max(1, round(size(dataToCluster, 1) / nCenters));
+    for i = 1:step:size(dataToCluster, 1)
         p_i = dataToCluster(i,:);
         % Build a candidate cluster for the datapoint
         potentialCandidateCluster = [];
@@ -88,3 +105,15 @@ if showData
 end
 
 save('test.mat');
+
+function d = dist(p1, p2)
+    d = sqrt(sum((p1-p2).^2));
+end
+
+% function d = dist(p1, p2, n1, n2)
+%     if (dot(n1, n2) > threshold_dot)
+%         d = sqrt(sum((p1-p2).^2));
+%     else
+%         d = Inf;
+%     end
+% end
