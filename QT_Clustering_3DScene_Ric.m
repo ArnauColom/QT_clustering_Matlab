@@ -3,8 +3,8 @@ clear;
 %% Variables used to customize the behaviour of QT Clustering
 showData  = true; % Used to show the initial data
 lowRes    = true; % Boolean used to determine whether to use low resolution data or not
-step_data = 1;    % value used to undersample the data to be clustered (reduce resolution)
-nCenters  = 10;   % Number of potential centers considered at each iteration over the data to be distributed
+step_data = 5;    % value used to undersample the data to be clustered (reduce resolution)
+nCenters  = Inf;  % Number of potential centers considered at each iteration over the data to be distributed
 threshold = 0.1;  % Threshold distance within the cluster
 threshold_dot = cos(pi/10);   % Threshold distance within the cluster
 
